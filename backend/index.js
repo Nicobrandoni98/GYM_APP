@@ -1,73 +1,28 @@
-require('dotenv').config()
-require('./mongo.js')
+require("dotenv").config();
+require("./mongo.js");
 
-const Rutina = require('./models/Rutina.js')
+const exercisesRouter = require('./controllers/exercises.js')
+const usersRouter = require('./controllers/users.js')
 const express = require("express");
 const cors = require("cors");
-const app = express()
+const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/exercises", exercisesRouter)
 
-app.get("/api/exercises", async (req, res) => {
-  const ejercicios = await Rutina.find({});
+app.use("/api/exercises/:dia", exercisesRouter)
 
-  res.json(ejercicios);
-});
+app.use("/api/exercises/:dia", exercisesRouter);
 
-app.get("/api/exercises/:dia", async (req, res) => {
-  const {dia} = req.params;
+app.use("/api/exercises/:id", exercisesRouter);
 
-  const ejercicios = await Rutina.find({
-    dia: dia
-  });
+app.use("/api/exercises/:id", exercisesRouter);
 
-  res.json(ejercicios);
-});
+app.use('/api/users', usersRouter)
+app.use('/api/users', usersRouter)
 
-app.post("/api/exercises/:dia", async (req, res) => {
-  const {dia} = req.params;
-
-  const ejercicio = new Rutina({
-    dia,
-
-    name: req.body.name,
-
-    series: req.body.series,
-
-    reps: req.body.reps,
-
-    peso: req.body.peso
-  });
-
-  const saved = await ejercicio.save();
-
-  res.json(saved);
-});
-
-app.delete("/api/exercises/:id", async (req, res) => {
-  const id = req.params.id;
-
-  await Rutina.findByIdAndDelete(id);
-
-  res.status(204).end();
-});
-
-app.put("/api/exercises/:id", async (req, res) => {
-  const id = req.params.id;
-
-  const ejercicioActualizado =
-    await Rutina.findByIdAndUpdate(
-      id,
-      req.body,
-      {
-        new: true
-      }
-    );
-
-  res.json(ejercicioActualizado);
-});
 
 const PORT = 3001;
 

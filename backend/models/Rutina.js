@@ -6,6 +6,10 @@ const rutinaSchema = new Schema({
   series: Number,
   reps: Number,
   peso: Number,
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }
 });
 
 rutinaSchema.set('toJSON', {

@@ -1,0 +1,16 @@
+POST http://localhost:3001/api/exercises/lunes
+Content-Type: application/json
+
+{
+    "dia": "lunes",
+
+    "name": "press hombro",
+
+    "series": 3,
+
+    "reps": 11,
+
+    "peso": 44,
+
+    "user": "6a28df43893884cb9aa9083d"
+}

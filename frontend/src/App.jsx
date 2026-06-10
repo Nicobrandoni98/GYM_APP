@@ -34,6 +34,7 @@ function App() {
       };
 
       data.forEach((ejercicio) => {
+        console.log("DIA:", ejercicio.dia);
         rutinaAgrupada[ejercicio.dia].push(ejercicio);
       });
 

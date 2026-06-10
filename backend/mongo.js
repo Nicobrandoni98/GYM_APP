@@ -12,29 +12,3 @@ mongoose
   .catch((err) => {
     console.error(err);
   });
-
-
-/* Rutina.find({
-  dia: "lunes"
-})
-.then(result => {
-  console.log(result);
-});  */
-
-/* const rutina = new Rutina({
-  dia: "lunes",
-  name: "Pullover",
-  series: 3,
-  reps: 10,
-  peso: 60,
-});
-
-rutina
-  .save()
-  .then((result) => {
-    console.log(result);
-    mongoose.connection.close();
-  })
-  .catch((err) => {
-    console.error(err);
-  }); */
