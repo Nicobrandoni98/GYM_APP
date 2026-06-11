@@ -1,16 +1,17 @@
-POST http://localhost:3001/api/exercises/lunes
+POST http://localhost:3001/api/exercises/miercoles
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMmEzOGQ2ZGEzNzRiNzcxOWVmM2U2NiIsInVzZXJuYW1lIjoiYXNkIiwiaWF0IjoxNzgxMTUyOTY3fQ.sPgB5RAY_UMxoOmANKUhCHotaWLMwjisITZezWwGaOc
 
 {
-    "dia": "lunes",
+    "dia": "miercoles",
 
-    "name": "press hombro",
+    "name": "press plano",
 
     "series": 3,
 
     "reps": 11,
 
-    "peso": 44,
+    "peso": 45,
 
-    "user": "6a28df43893884cb9aa9083d"
+    "user": "6a2a38d6da374b7719ef3e66"
 }

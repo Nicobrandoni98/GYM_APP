@@ -1,5 +1,6 @@
 export const Exercise = ({ exercise, onEdit, onDelete }) => {
   return (
+    // PONER LOS EJERCICIOS DE IZQUIERDA A DERECHA
     <li>
       <strong>{exercise.name}</strong>
       <br />
