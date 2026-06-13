@@ -13,12 +13,7 @@ app.use(express.json());
 
 // Uso de app.use para manejar las rutas
 app.use("/api/exercises", exercisesRouter)
-app.use("/api/exercises/:dia", exercisesRouter)
-app.use("/api/exercises/:dia", exercisesRouter);
-app.use("/api/exercises/:id", exercisesRouter);
-app.use("/api/exercises/:id", exercisesRouter);
 
-app.use('/api/users', usersRouter)
 app.use('/api/users', usersRouter)
 
 app.use('/api/login', loginRouter)

@@ -24,52 +24,78 @@ exercisesRouter.get("/:dia", async (req, res) => {
 });
 
 exercisesRouter.post("/:dia", async (req, res) => {
-  
-  const { dia } = req.params;
+  try {
+    const { dia } = req.params;
 
-  const authorization = req.get('authorization')
-  let token = null
-  
-  // Verifico la autorizacion 
-  if (authorization && authorization.toLowerCase().startsWith('bearer')) {
-    token = authorization.substring(7)
-  }
+    const authorization = req.get("authorization");
 
-  // eslint-disable-next-line no-undef
-  const decodedToken = jwt.verify(token, process.env.SECRET)
-  if (!token || !decodedToken.id) {
-    return res.status(401).json({ error: 'Token missing or invalid'})
-  }
+    let token = null;
 
-  
-  const user = await User.findById(req.body.user)
+    if (
+      authorization &&
+      authorization.toLowerCase().startsWith("bearer ")
+    ) {
+      token = authorization.substring(7);
+    }
 
-  if (!user) {
-    return res.status(400).json({
-      error: "Usuario no encontrado o no enviado"
+    if (!token) {
+      return res.status(401).json({
+        error: "Token missing",
+      });
+    }
+
+    const decodedToken = jwt.verify(
+      token,
+      // eslint-disable-next-line no-undef
+      process.env.SECRET
+    );
+
+    if (!decodedToken.id) {
+      return res.status(401).json({
+        error: "Token invalid",
+      });
+    }
+
+    const user = await User.findById(decodedToken.id);
+
+    if (!user) {
+      return res.status(404).json({
+        error: "Usuario no encontrado",
+      });
+    }
+
+    const { name, series, reps, peso } = req.body;
+
+    if (!name) {
+      return res.status(400).json({
+        error: "El nombre del ejercicio es obligatorio",
+      });
+    }
+
+    const ejercicio = new Rutina({
+      dia,
+      name,
+      series,
+      reps,
+      peso,
+      user: user._id,
+    });
+
+    const savedExercise = await ejercicio.save();
+
+    user.rutina = user.rutina.concat(savedExercise._id);
+
+    await user.save();
+
+    res.status(201).json(savedExercise);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(400).json({
+      error: error.message,
     });
   }
-
-  const ejercicio = new Rutina({
-    dia,
-
-    name: req.body.name,
-
-    series: req.body.series,
-
-    reps: req.body.reps,
-
-    peso: req.body.peso,
-
-    user: user._id
-  });
-
-  const saved = await ejercicio.save();
-
-  user.rutina = user.rutina.concat(saved._id)
-  await user.save()
-
-  res.json(saved);
 });
 
 exercisesRouter.delete("/:id", async (req, res) => {

@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { Exercise } from "./components/Exercise";
 import {
   getAllExercises,
   createExercise,
   deleteExercise,
   updateExercise,
+  setToken,
 } from "./services/exercises";
+import loginService from "./services/login";
+import { LoginForm } from "./components/LoginForm";
+import { CreateExercise } from "./components/CreateExercises";
+
 function App() {
   const [rutina, setRutina] = useState({
     lunes: [],
@@ -16,11 +20,12 @@ function App() {
     sabado: [],
   });
 
-  const [name, setName] = useState("");
-  const [series, setSeries] = useState("");
-  const [reps, setReps] = useState("");
-  const [peso, setPeso] = useState("");
+  
   const [dia, setDia] = useState("lunes");
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     getAllExercises().then((data) => {
@@ -42,27 +47,24 @@ function App() {
     });
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUser(user);
+      setToken(user.token);
+    }
+  }, []);
 
-    const nuevoEjercicio = {
-      name,
-      series: Number(series),
-      reps: Number(reps),
-      peso: Number(peso),
-    };
-
+  // Dejo el servicio para crear ejercicio
+  const addExercise = (nuevoEjercicio) => {
     createExercise(dia, nuevoEjercicio).then((ejercicioCreado) => {
       setRutina((prev) => ({
         ...prev,
         [dia]: [...prev[dia], ejercicioCreado],
       }));
-    });
-
-    setName("");
-    setSeries("");
-    setReps("");
-    setPeso("");
+    })
   };
 
   const handleDelete = (dia, id) => {
@@ -102,66 +104,52 @@ function App() {
     });
   };
 
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    try {
+      const user = await loginService.login({
+        username,
+        password,
+      });
+
+      window.localStorage.setItem("loggedUser", JSON.stringify(user));
+
+      setToken(user.token);
+      setUser(user);
+      setUsername("");
+      setPassword("");
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setToken(user.token);
+    window.localStorage.removeItem("loggedUser");
+  };
   return (
     <>
       <h1>Mi rutina</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Ejercicio"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+      {user ? (
+        <CreateExercise
+          addExercise={addExercise}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+          handleLogout={handleLogout}
+          handleDiaChange={(e) => setDia(e.target.value)}
+          dia={dia}
+          rutina={rutina}
         />
-
-        <input
-          type="number"
-          placeholder="Series"
-          value={series}
-          onChange={(e) => setSeries(e.target.value)}
+      ) : (
+        <LoginForm
+          username={username}
+          password={password}
+          handleUsernameChange={(event) => setUsername(event.target.value)}
+          handlePasswordChange={(event) => setPassword(event.target.value)}
+          handleLogin={handleLogin}
         />
-
-        <input
-          type="number"
-          placeholder="Repeticiones"
-          value={reps}
-          onChange={(e) => setReps(e.target.value)}
-        />
-
-        <input
-          type="number"
-          placeholder="Peso (kg)"
-          value={peso}
-          onChange={(e) => setPeso(e.target.value)}
-        />
-
-        <select value={dia} onChange={(e) => setDia(e.target.value)}>
-          <option value="lunes">Lunes</option>
-          <option value="martes">Martes</option>
-          <option value="miercoles">Miércoles</option>
-          <option value="jueves">Jueves</option>
-          <option value="viernes">Viernes</option>
-          <option value="sabado">Sábado</option>
-        </select>
-
-        <button>Agregar</button>
-      </form>
-
-      {Object.entries(rutina).map(([dia, ejercicios]) => (
-        <div key={dia}>
-          <h2>{dia}</h2>
-
-          <ul>
-            {ejercicios.map((exercise) => (
-              <Exercise
-                key={exercise.id}
-                exercise={exercise}
-                onDelete={(id) => handleDelete(dia, id)}
-                onEdit={(exercise) => handleEdit(dia, exercise)}
-              />
-            ))}
-          </ul>
-        </div>
-      ))}
+      )}
     </>
   );
 }
